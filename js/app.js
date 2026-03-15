@@ -42,13 +42,34 @@ async function saveEntry() {
     return;
   }
 
-  // Dodaj novi unos u lokalni state
-  entries = entries.filter(e => e.date !== today);
+  // Dodaj u lokalni state odmah
   entries.push(data);
 
-  // Prikaži poruku uspjeha pa re-renderiraj
+  // Odmah ažuriraj vrt i listu — bez čekanja na refresh
+  renderGarden();
+  renderPastEntries();
+  renderStreak();
+
+  // Očisti textarea i prikaži poruku uspjeha
+  textEl.value = '';
+  btn.disabled = true;
   successEl.style.display = 'block';
-  setTimeout(() => renderAll(), 1200);
+  setTimeout(() => { successEl.style.display = 'none'; }, 2000);
+
+  // Ažuriraj brojač unosa danas
+  const todayCount = entries.filter(e => e.date === today).length;
+  const countEl = document.querySelector('.today-count');
+  if (countEl) {
+    countEl.textContent = `🌸 ${todayCount} seed${todayCount !== 1 ? 's' : ''} planted today`;
+  } else {
+    const h2 = document.querySelector('#journal-content h2');
+    if (h2) {
+      const p = document.createElement('p');
+      p.className = 'today-count';
+      p.textContent = `🌸 ${todayCount} seed${todayCount !== 1 ? 's' : ''} planted today`;
+      h2.before(p);
+    }
+  }
 }
 
 // ── Učitaj sve unose iz Supabase ──

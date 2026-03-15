@@ -17,21 +17,23 @@ function formatDate(dateStr) {
   });
 }
 
-// Izračunaj streak (uzastopni dani)
+// Izračunaj streak (uzastopni dani, ne unosi)
 function calcStreak(entries) {
   if (!entries.length) return 0;
 
-  const sorted = [...entries].sort((a, b) => b.date.localeCompare(a.date));
+  // Izvuci jedinstvene dane (jedan dan = jedan streak, bez obzira na broj unosa)
+  const uniqueDays = [...new Set(entries.map(e => e.date))].sort().reverse();
+
   let streak = 0;
   let current = new Date(getToday());
 
-  for (const entry of sorted) {
-    const entryDate = new Date(entry.date + 'T12:00:00');
-    const diffDays = Math.round((current - entryDate) / 86400000);
+  for (const day of uniqueDays) {
+    const dayDate = new Date(day + 'T12:00:00');
+    const diffDays = Math.round((current - dayDate) / 86400000);
 
     if (diffDays === 0 || diffDays === 1) {
       streak++;
-      current = entryDate;
+      current = dayDate;
     } else {
       break;
     }

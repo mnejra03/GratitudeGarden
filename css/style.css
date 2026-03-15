@@ -222,6 +222,13 @@ textarea:focus {
 .already-planted .icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
 .already-planted p { color: var(--ink-soft); font-style: italic; font-size: 0.9rem; }
 
+.today-count {
+  font-size: 0.82rem;
+  color: var(--grass);
+  margin-bottom: 0.8rem;
+  font-style: italic;
+}
+
 .entry-preview {
   margin-top: 0.8rem;
   padding: 0.7rem 0.9rem;

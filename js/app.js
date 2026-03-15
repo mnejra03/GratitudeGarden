@@ -22,10 +22,7 @@ async function saveEntry() {
 
   const today = getToday();
 
-  // Ako već postoji unos za danas, obriši ga prvo
-  await db.from('entries').delete().eq('date', today);
-
-  // Umetni novi unos
+  // Umetni novi unos (više unosa po danu je dozvoljeno)
   const { data, error } = await db
     .from('entries')
     .insert({

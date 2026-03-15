@@ -58,31 +58,29 @@ function renderJournal() {
   const todayEntry = entries.find(e => e.date === today);
   const content = document.getElementById('journal-content');
 
-  if (todayEntry) {
-    // Već napisano danas — prikaži preview
-    content.innerHTML = `
-      <div class="already-planted">
-        <span class="icon">🌸</span>
-        <p>Your seed is planted for today. Come back tomorrow.</p>
-        <div class="entry-preview">"${todayEntry.text}"</div>
-      </div>`;
-  } else {
-    // Prazna forma
-    content.innerHTML = `
-      <h2>What are you grateful for today?</h2>
-      <textarea id="entry-text" placeholder="Today I'm grateful for…" rows="4"></textarea>
-      <button class="plant-btn" id="plant-btn" disabled>🌱 Plant a seed</button>
-      <div id="saving-msg" class="saving-msg" style="display:none">Saving to your garden…</div>
-      <div id="success-msg" class="success-msg" style="display:none">✨ A new plant appeared in your garden!</div>`;
+  // Koliko unosa danas
+  const todayEntries = entries.filter(e => e.date === today);
+  const todayCount = todayEntries.length;
+  const countMsg = todayCount > 0
+    ? `<p class="today-count">🌸 ${todayCount} seed${todayCount !== 1 ? 's' : ''} planted today</p>`
+    : '';
 
-    // Aktiviraj dugme samo kad ima teksta
-    document.getElementById('entry-text').addEventListener('input', function () {
-      document.getElementById('plant-btn').disabled = !this.value.trim();
-    });
+  // Forma je uvijek vidljiva — može se dodati više cvjetova
+  content.innerHTML = `
+    ${countMsg}
+    <h2>What are you grateful for today?</h2>
+    <textarea id="entry-text" placeholder="Today I'm grateful for…" rows="4"></textarea>
+    <button class="plant-btn" id="plant-btn" disabled>🌱 Plant a seed</button>
+    <div id="saving-msg" class="saving-msg" style="display:none">Saving to your garden…</div>
+    <div id="success-msg" class="success-msg" style="display:none">✨ A new plant appeared in your garden!</div>`;
 
-    // Klik na dugme
-    document.getElementById('plant-btn').addEventListener('click', saveEntry);
-  }
+  // Aktiviraj dugme samo kad ima teksta
+  document.getElementById('entry-text').addEventListener('input', function () {
+    document.getElementById('plant-btn').disabled = !this.value.trim();
+  });
+
+  // Klik na dugme
+  document.getElementById('plant-btn').addEventListener('click', saveEntry);
 }
 
 // ── Prikaz vrta ──

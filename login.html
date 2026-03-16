@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gratitude Garden — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+
+  <div class="login-wrap">
+
+    <div class="login-header">
+      <h1>My Gratitude Garden</h1>
+      <p>Plant a seed of gratitude, every day</p>
+    </div>
+
+    <div class="login-card">
+
+      <!-- Tabovi -->
+      <div class="tabs">
+        <button class="tab active" id="tab-login" onclick="switchTab('login')">Sign in</button>
+        <button class="tab" id="tab-register" onclick="switchTab('register')">Create account</button>
+      </div>
+
+      <!-- Login forma -->
+      <div id="form-login">
+        <input type="email" id="login-email" placeholder="Email" />
+        <input type="password" id="login-password" placeholder="Password" />
+        <button class="auth-btn" onclick="handleLogin()">Sign in</button>
+      </div>
+
+      <!-- Register forma -->
+      <div id="form-register" style="display:none">
+        <input type="email" id="reg-email" placeholder="Email" />
+        <input type="password" id="reg-password" placeholder="Password (min. 6 characters)" />
+        <button class="auth-btn" onclick="handleRegister()">Create account</button>
+      </div>
+
+      <div class="auth-msg" id="auth-msg"></div>
+
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/config.js"></script>
+  <script>
+    // Ako je već ulogovan, odmah idi na app
+    db.auth.getSession().then(({ data }) => {
+      if (data.session) window.location.href = 'index.html';
+    });
+
+    function switchTab(tab) {
+      document.getElementById('form-login').style.display    = tab === 'login'    ? 'block' : 'none';
+      document.getElementById('form-register').style.display = tab === 'register' ? 'block' : 'none';
+      document.getElementById('tab-login').classList.toggle('active',    tab === 'login');
+      document.getElementById('tab-register').classList.toggle('active', tab === 'register');
+      document.getElementById('auth-msg').textContent = '';
+    }
+
+    function showMsg(text, isError = false) {
+      const el = document.getElementById('auth-msg');
+      el.textContent = text;
+      el.className = 'auth-msg ' + (isError ? 'error' : 'success');
+    }
+
+    async function handleLogin() {
+      const email    = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
+      if (!email || !password) { showMsg('Please fill in all fields.', true); return; }
+
+      showMsg('Signing in…');
+      const { error } = await db.auth.signInWithPassword({ email, password });
+      if (error) { showMsg(error.message, true); return; }
+      window.location.href = 'index.html';
+    }
+
+    async function handleRegister() {
+      const email    = document.getElementById('reg-email').value.trim();
+      const password = document.getElementById('reg-password').value;
+      if (!email || !password) { showMsg('Please fill in all fields.', true); return; }
+      if (password.length < 6)  { showMsg('Password must be at least 6 characters.', true); return; }
+
+      showMsg('Creating account…');
+      const { error } = await db.auth.signUp({ email, password });
+      if (error) { showMsg(error.message, true); return; }
+      showMsg('Account created! You can now sign in. ✅');
+      switchTab('login');
+    }
+  </script>
+
+</body>
+</html>

@@ -1,10 +1,41 @@
 // =============================================
 //  app.js — Glavna logika aplikacije
 //  Čita/piše podatke iz Supabase baze
+//  Uključuje autentikaciju
 // =============================================
 
-// Globalni state — lista svih unosa
 let entries = [];
+let currentUser = null;
+
+// ── Provjeri je li korisnik ulogovan ──
+async function checkAuth() {
+  const { data } = await db.auth.getSession();
+
+  if (!data.session) {
+    // Nije ulogovan — pošalji na login
+    window.location.href = 'login.html';
+    return false;
+  }
+
+  currentUser = data.session.user;
+  return true;
+}
+
+// ── Prikaz emaila i logout dugmeta ──
+function renderUserInfo() {
+  const el = document.getElementById('user-info');
+  el.innerHTML = `
+    <div class="user-info">
+      <span>${currentUser.email}</span>
+      <button class="logout-btn" onclick="handleLogout()">Sign out</button>
+    </div>`;
+}
+
+// ── Odjava ──
+async function handleLogout() {
+  await db.auth.signOut();
+  window.location.href = 'login.html';
+}
 
 // ── Sačuvaj novi unos u Supabase ──
 async function saveEntry() {
@@ -16,13 +47,11 @@ async function saveEntry() {
   const savingEl = document.getElementById('saving-msg');
   const successEl = document.getElementById('success-msg');
 
-  // Onemogući dugme dok se čuva
   btn.disabled = true;
   savingEl.style.display = 'block';
 
   const today = getToday();
 
-  // Umetni novi unos (više unosa po danu je dozvoljeno)
   const { data, error } = await db
     .from('entries')
     .insert({
@@ -30,6 +59,7 @@ async function saveEntry() {
       text: text,
       plant_type: PLANT_TYPES[Math.floor(Math.random() * PLANT_TYPES.length)],
       color_idx: Math.floor(Math.random() * COLORS.length),
+      user_id: currentUser.id,
     })
     .select()
     .single();
@@ -45,7 +75,7 @@ async function saveEntry() {
   // Dodaj u lokalni state odmah
   entries.push(data);
 
-  // Odmah ažuriraj vrt i listu — bez čekanja na refresh
+  // Odmah ažuriraj vrt i listu — bez čekanja
   renderGarden();
   renderPastEntries();
   renderStreak();
@@ -72,24 +102,22 @@ async function saveEntry() {
   }
 }
 
-// ── Učitaj sve unose iz Supabase ──
+// ── Učitaj unose trenutnog korisnika ──
 async function loadEntries() {
   const { data, error } = await db
     .from('entries')
     .select('*')
+    .eq('user_id', currentUser.id)
     .order('date', { ascending: false });
 
-  // Sakrij loading screen, prikaži app
   document.getElementById('loading-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
   if (error) {
-    setStatus('error', '⚠️ Could not connect to database. Have you run the SQL setup in Supabase?');
+    setStatus('error', '⚠️ Could not load entries.');
   } else {
     entries = data || [];
-    setStatus('online', '✓ Connected to Supabase — your garden is saved in the cloud');
-
-    // Sakrij status bar nakon 4 sekunde
+    setStatus('online', '✓ Connected — your garden is saved in the cloud');
     setTimeout(() => {
       document.getElementById('status-bar').style.display = 'none';
     }, 4000);
@@ -99,4 +127,11 @@ async function loadEntries() {
 }
 
 // ── Pokreni aplikaciju ──
-loadEntries();
+async function init() {
+  const loggedIn = await checkAuth();
+  if (!loggedIn) return;
+  renderUserInfo();
+  await loadEntries();
+}
+
+init();

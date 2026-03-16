@@ -222,6 +222,33 @@ textarea:focus {
 .already-planted .icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; }
 .already-planted p { color: var(--ink-soft); font-style: italic; font-size: 0.9rem; }
 
+.user-info {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid #C8BBA8;
+  border-radius: 20px;
+  padding: 3px 12px;
+  font-family: 'Lora', serif;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.logout-btn:hover {
+  background: var(--parchment);
+  color: var(--ink);
+}
+
 .today-count {
   font-size: 0.82rem;
   color: var(--grass);

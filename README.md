@@ -2,7 +2,7 @@
 
 A daily gratitude journal where every entry grows a plant in your personal visual garden. Each user has their own private garden — sign up, log in, and start planting.
 
-**Live demo:** [https://fanciful-beignet-35ccdc.netlify.app](https://fanciful-beignet-35ccdc.netlify.app)
+**Live demo:** [https://mnejra03.github.io/GratitudeGarden/]
 
 ---
 
